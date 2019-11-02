@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TestService {
+export class RipleyService {
   private cabeceras: any;
 
   constructor(private http: HttpClient) {
@@ -15,7 +15,13 @@ export class TestService {
   }
 
   getDataProductId(porductSKU: string, token: string) {
+
+    this.cabeceras = new Headers();
+    this.cabeceras.append('Access-Control-Allow-Origin', '*');
+    this.cabeceras.append('Access-Control-Allow-Methods', 'GET, POST');
+    this.cabeceras.append('Content-Type', 'application/json');
     this.cabeceras.append('token', token);
+    console.log(this.cabeceras);
     return this.http.get('http://localhost:4000/product/' + porductSKU,
       { headers: this.cabeceras });
   }

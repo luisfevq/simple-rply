@@ -1,25 +1,83 @@
-const { Router } = require('express');
+const express = require('express');
+const app = express();
+
 const Request = require("request");
 
-const router = Router();
+const jwt = require('jsonwebtoken');
 
-router.get('/product/:id', (req, res) => {
-    console.log(req.params.id);
-    Request.get("https://simple.ripley.cl/api/v2/products/"+ req.params.id, (error, response, body) => {
+var fire = require('./../services/firebase');
+var auth = fire.auth();
+
+const { verificarToken } = require('./../middlewares/autentication');
+
+app.get('/product/:id', verificarToken, (req, res) => {
+    Request.get("https://simple.ripley.cl/api/v2/products/" + req.params.id, (error, response, body) => {
         if (error) {
             return console.dir(error);
         }
         return res.send(JSON.parse(body));
     });
 });
-router.post('/', (req, res) => {
-    return res.send('Received a POST HTTP method');
-});
-router.put('/', (req, res) => {
-    return res.send('Received a PUT HTTP method');
-});
-router.delete('/', (req, res) => {
-    return res.send('Received a DELETE HTTP method');
+
+app.get('/login/:email/:pass', (req, res) => {
+
+    var email = req.params.email;
+    var password = req.params.pass;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((result) => {
+            let token = jwt.sign({
+                datosUser : email
+            }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
+            res.json({
+                ok: true,
+                usuario: email,
+                token,
+            });
+        }, (reason) => {
+            if (reason.code === 'auth/user-not-found') {
+                res.json({
+                    ok: false,
+                    mensaje: 'Usuario no se encuentra registrado'
+                });
+            }
+        });
 });
 
-module.exports = router;
+app.get('/register/:email/:pass', (req, res) => {
+
+    var email = req.params.email;
+    var password = req.params.pass;
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((result) => {
+            let token = jwt.sign({
+                datosUser : email
+            }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
+            res.json({
+                ok: true,
+                usuario: email,
+                token,
+            });
+        }, (reason) => {
+            if (reason.code === 'auth/email-already-in-use') {
+                res.json({
+                    ok: false,
+                    mensaje: 'Usuario ya registrado'
+                });
+            }
+        });
+});
+
+
+// app.post('/', (req, res) => {
+//     return res.send('Received a POST HTTP method');
+// });
+// app.put('/', (req, res) => {
+//     return res.send('Received a PUT HTTP method');
+// });
+// app.delete('/', (req, res) => {
+//     return res.send('Received a DELETE HTTP method');
+// });
+
+module.exports = app;
