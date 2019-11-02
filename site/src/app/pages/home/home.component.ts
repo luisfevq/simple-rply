@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NotifyService } from 'src/app/services/notify.service';
 import { StorageUtil } from 'src/app/util/storage';
 import { RipleyService } from 'src/app/services/ripley.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private subscription: Subscription;
 
   listProductsApi: any = [];
   listProductsSKU = [
@@ -30,31 +32,67 @@ export class HomeComponent implements OnInit {
     private notify: NotifyService,
     private storage: StorageUtil) {
 
-    const user = JSON.parse(this.storage.obtenerUser());
-    if (user !== null) {
-      this.token = user.token;
+    const tok = JSON.parse(this.storage.obtenerToken());
+    console.log(tok);
+    if (tok !== null) {
+      this.token = tok;
     }
     this.lisarProductos();
   }
 
   ngOnInit() {
     this.notify.session$.subscribe((sesion) => {
-      const user = JSON.parse(this.storage.obtenerUser());
-      this.token = user.token;
-      this.lisarProductos();
+      if (sesion) {
+        // const tok = JSON.parse(this.storage.obtenerToken());
+        // this.token = tok;
+        // this.lisarProductos();
+      } else {
+        // console.log('Fin de la sesion');
+        // this.storage.eliminarToken();
+        // this.storage.guardarUser('');
+        // this.token = '';
+        // this.lisarProductos();
+      }
+    });
+    this.notify.actualizarProductos$.subscribe((actualizar) => {
+      if (actualizar) {
+        this.token = '';
+        this.lisarProductos();
+      }
     });
   }
 
+  ngOnDestroy() {
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+    }
+  }
+
   lisarProductos() {
+    this.listProductsApi = [];
     this.listProductsSKU.forEach((element) => {
       // leer token NotifyService, storage
-      this.ripleyService.getDataProductId(element, this.token).subscribe((response) => {
+      this.ripleyService.getDataProductId(element, this.token).subscribe((response: any) => {
         console.log(response);
-        this.listProductsApi.push(response);
+        if (!response.ok) {
+          this.notify.session$.emit(false);
+        }
+        if (response.token !== '') {
+          this.actualizarTokenLocal(response.token);
+        }
+        if (response.producto !== undefined) {
+          this.listProductsApi.push(response.producto);
+        }
       }, (error) => {
         console.error(error);
       });
     });
+  }
+
+
+  actualizarTokenLocal(tokenRefresh) {
+    console.log('actualizarTokenLocal');
+    this.storage.guardarToken(tokenRefresh);
   }
 
 }

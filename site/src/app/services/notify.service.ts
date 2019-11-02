@@ -10,6 +10,7 @@ export class NotifyService {
   tokenNotify$    = new EventEmitter();
   user$           = new EventEmitter();
   session$        = new EventEmitter<boolean>();
+  actualizarProductos$        = new EventEmitter<boolean>();
 
   constructor() { }
 }

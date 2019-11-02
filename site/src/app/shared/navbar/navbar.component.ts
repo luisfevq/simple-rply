@@ -15,6 +15,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
 
   loading = false;
+  usuarioEmail = '';
 
   userForm = new FormGroup({
     email: new FormControl(null, Validators.required),
@@ -27,6 +28,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private storage: StorageUtil) { }
 
   ngOnInit() {
+    const user = JSON.parse(this.storage.obtenerUser());
+    this.usuarioEmail = user.usuario === undefined ? '' : user.usuario;
+    this.notify.session$.subscribe((sesion) => {
+      console.log('AQUIII');
+      console.log(sesion);
+      if (!sesion) {
+        this.usuarioEmail = '';
+        // this.notify.actualizarProductos$.emit(true);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -40,16 +51,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const password = this.userForm.value.password;
 
     if (this.userForm.valid) {
+      this.loading = true;
       this.subscription = this.loginService.login(email, password).subscribe((result: any) => {
+        this.loading = false;
 
-        this.notify.session$.emit(true);
         const datos = {
-          sesion  : result.ok,
-          usuario : result.usuario,
-          token   : result.token
+          sesion: result.ok,
+          usuario: result.usuario,
+          token: result.token
         };
+
+        this.usuarioEmail = result.usuario;
+
         this.storage.eliminarUser();
         this.storage.guardarUser(datos);
+
+        console.log('Token desde API =====>', result.token);
+        this.storage.guardarToken(result.token);
+
+        this.notify.session$.emit(true);
       });
     }
   }

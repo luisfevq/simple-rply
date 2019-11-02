@@ -15,14 +15,7 @@ export class RipleyService {
   }
 
   getDataProductId(porductSKU: string, token: string) {
-
-    this.cabeceras = new Headers();
-    this.cabeceras.append('Access-Control-Allow-Origin', '*');
-    this.cabeceras.append('Access-Control-Allow-Methods', 'GET, POST');
-    this.cabeceras.append('Content-Type', 'application/json');
-    this.cabeceras.append('token', token);
-    console.log(this.cabeceras);
-    return this.http.get('http://localhost:4000/product/' + porductSKU,
+    return this.http.get('http://localhost:4000/product/' + porductSKU + '?token=' + token,
       { headers: this.cabeceras });
   }
 

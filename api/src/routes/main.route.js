@@ -15,7 +15,13 @@ app.get('/product/:id', verificarToken, (req, res) => {
         if (error) {
             return console.dir(error);
         }
-        return res.send(JSON.parse(body));
+        res.json({
+            ok: req.ok,
+            err: req.err,
+            token : req.tokenRefresh,
+            usuario: req.usuario,
+            producto: JSON.parse(body)
+        });
     });
 });
 

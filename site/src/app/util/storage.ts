@@ -24,6 +24,21 @@ export class StorageUtil {
   obtenerUser() {
     return this.leerLocalStorage('currentUser');
   }
+  guardarToken(token: string) {
+    this.grabarLocalStorage('tokenRipley', token);
+  }
+  eliminarToken() {
+    this.borrarLocalStorage('tokenRipley');
+  }
+  obtenerToken() {
+    return this.leerLocalStorage('tokenRipley');
+  }
+  guardarProd(userArray: any) {
+    this.grabarLocalStorage('prodTemp', userArray);
+  }
+  obtenerProd() {
+    return this.leerLocalStorage('prodTemp');
+  }
 
 
   private grabarLocalStorage(storage: string, arreglo: any) {
