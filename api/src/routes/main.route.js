@@ -1,14 +1,14 @@
 const express = require('express');
-const app = express();
-
 const Request = require("request");
-
 const jwt = require('jsonwebtoken');
 
 var fire = require('./../services/firebase');
 var auth = fire.auth();
 
 const { verificarToken } = require('./../middlewares/autentication');
+
+const app = express();
+
 
 app.get('/product/:id', verificarToken, (req, res) => {
     Request.get("https://simple.ripley.cl/api/v2/products/" + req.params.id, (error, response, body) => {
@@ -75,15 +75,5 @@ app.get('/register/:email/:pass', (req, res) => {
         });
 });
 
-
-// app.post('/', (req, res) => {
-//     return res.send('Received a POST HTTP method');
-// });
-// app.put('/', (req, res) => {
-//     return res.send('Received a PUT HTTP method');
-// });
-// app.delete('/', (req, res) => {
-//     return res.send('Received a DELETE HTTP method');
-// });
 
 module.exports = app;

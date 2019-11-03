@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private storage: StorageUtil) {
 
     const tok = JSON.parse(this.storage.obtenerToken());
-    console.log(tok);
     if (tok !== null) {
       this.token = tok;
     }
@@ -41,25 +40,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.notify.session$.subscribe((sesion) => {
-      if (sesion) {
-        // const tok = JSON.parse(this.storage.obtenerToken());
-        // this.token = tok;
-        // this.lisarProductos();
-      } else {
-        // console.log('Fin de la sesion');
-        // this.storage.eliminarToken();
-        // this.storage.guardarUser('');
-        // this.token = '';
-        // this.lisarProductos();
-      }
-    });
-    this.notify.actualizarProductos$.subscribe((actualizar) => {
-      if (actualizar) {
-        this.token = '';
-        this.lisarProductos();
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -91,7 +71,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
   actualizarTokenLocal(tokenRefresh) {
-    console.log('actualizarTokenLocal');
     this.storage.guardarToken(tokenRefresh);
   }
 

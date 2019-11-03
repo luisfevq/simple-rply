@@ -14,7 +14,6 @@ let verificarToken = (req, res, next) => {
     // se actualiza el tiempo nuevamente
     if (token) {
         jwt.verify(token, process.env.SEED, (err, decoded) => {
-            console.log(err);
             if (err) {
                 req.ok = false;
                 req.err = 'Token no válido';

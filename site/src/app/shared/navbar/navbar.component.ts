@@ -31,11 +31,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const user = JSON.parse(this.storage.obtenerUser());
     this.usuarioEmail = user.usuario === undefined ? '' : user.usuario;
     this.notify.session$.subscribe((sesion) => {
-      console.log('AQUIII');
-      console.log(sesion);
       if (!sesion) {
         this.usuarioEmail = '';
-        // this.notify.actualizarProductos$.emit(true);
       }
     });
   }
@@ -66,7 +63,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.storage.eliminarUser();
         this.storage.guardarUser(datos);
 
-        console.log('Token desde API =====>', result.token);
         this.storage.guardarToken(result.token);
 
         this.notify.session$.emit(true);
